@@ -1,15 +1,18 @@
 from flask import Flask, request, jsonify
 import requests
+import utils
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return 'Hello, World!'
+    return 'Welcome to the popquest API'
 
-@app.route('/about')
+@app.route('/websrc', methods=['GET'])
 def about():
-    return 'About'
+    website = request.args.get('web')
+    src = utils.websrc(website)
+    return src
 
 @app.route('/checksheet', methods=['GET'])
 def validate():
