@@ -9,3 +9,7 @@ def home():
 @app.route('/about')
 def about():
     return 'About'
+
+@app.route('/test')
+def test():
+    return 'Inside the test endpoint route'
