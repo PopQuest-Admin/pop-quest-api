@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify
 import requests
-import utils
 
 app = Flask(__name__)
+
+def websrc(link):
+    response = requests.get(link)
+    return response.text
 
 @app.route('/')
 def home():
@@ -11,8 +14,7 @@ def home():
 @app.route('/websrc', methods=['GET'])
 def about():
     website = request.args.get('web')
-    src = utils.websrc(website)
-    return src
+    return websrc(website)
 
 @app.route('/checksheet', methods=['GET'])
 def validate():
