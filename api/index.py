@@ -3,23 +3,37 @@ import requests
 
 app = Flask(__name__)
 
-def websrc(link):
-    response = requests.get(link)
-    return response.text
+def check_google_sheet(link):
+    prefixes = ["https://","http://"]
+    for pre in prefixes:
+        link = link.strip(pre)
+        if link.startswith("docs.google.com"):
+            parts = str(link).split("/")
+            if parts[1] == "spreadsheets" and parts[2] == "d":
+                data = {
+                    "vailidity" : True
+                }
+                return jsonify(data)
+            else:
+                data = {
+                    "vailidity" : False
+                }
+                return jsonify(data)
+        else:
+            data = {
+                "vailidity" : False
+            }
+            return jsonify(data)
+
 
 @app.route('/')
 def home():
     return 'Welcome to the popquest API'
 
-@app.route('/websrc', methods=['GET'])
-def about():
-    website = request.args.get('web')
-    return websrc(website)
-
 @app.route('/checksheet', methods=['GET'])
 def validate():
     link = request.args.get('link')
-    return f"link retuned : {link}"
+    return check_google_sheet(link)
 
 @app.route('/test')
 def test():
@@ -28,5 +42,5 @@ def test():
 
 
 # for local dev only
-# if __name__ == '__main__':
-#     app.run()
+if __name__ == '__main__':
+    app.run()
