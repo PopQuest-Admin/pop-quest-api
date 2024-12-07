@@ -1,5 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import requests
+from PIL import Image, ImageDraw, ImageFont
+
 
 app = Flask(__name__)
 
@@ -52,6 +54,36 @@ def readdata():
     api_key = request.args.get('api_key')
     
     return jsonify(read_google_sheet(sheet_url,api_key))
+
+@app.route('/generate_button', methods=['GET'])
+def generate():
+    text = request.args.get('button')
+    bg_image_width = 697
+    bg_image_height = 135
+    font_size = 85
+    font_path = "./font.ttf"
+    output_file = "output.png"
+    color = (236,75,104)
+    bg_img = "./bg.png"
+
+    if len(text) > 10:
+        raise ValueError("Text exceeds the maximum limit of 10 characters.")
+
+    image = Image.open(bg_img)
+    draw = ImageDraw.Draw(image)
+
+    try:
+        font = ImageFont.truetype(font_path, font_size)
+    except IOError:
+        print("ERROR FONT FILE FOUND")
+
+    text_width, text_height = draw.textsize(text, font=font)
+    x_position = (bg_image_width - text_width) // 2
+    y_position = (bg_image_height - text_height) // 2
+    draw.text((x_position, y_position), text, color, font=font)
+
+    image.save(output_file)
+    return send_file(output_file, mimetype='image/png')
 
 @app.route('/test')
 def test():
