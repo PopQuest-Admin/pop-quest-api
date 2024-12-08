@@ -87,7 +87,7 @@ def generate():
 
 @app.route('/test')
 def test():
-    return "Welcome to the test route"
+    return "Welcome to the test endpoint"
 
 
 if __name__ == '__main__':
