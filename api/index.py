@@ -77,7 +77,9 @@ def generate():
     except IOError:
         print("ERROR FONT FILE FOUND")
 
-    text_width, text_height = draw.textsize(text, font=font)
+    # text_width, text_height = draw.textlength(text, font=font)
+    text_width = draw.textlength(text, font=font)
+    text_height = font_size * 1
     x_position = (bg_image_width - text_width) // 2
     y_position = (bg_image_height - text_height) // 2
     draw.text((x_position, y_position), text, color, font=font)
