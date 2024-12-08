@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_file, send_from_directory
 import requests
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageColor
 import io
 
 app = Flask(__name__, static_folder='static')
@@ -62,8 +62,12 @@ def generate():
     bg_image_height = 135
     font_size = 85
     font_path = "./font.ttf"
-    output_file = "output1.png"
-    color = (236,75,104)
+    # output_file = "output1.png"
+    # color = (236,75,104)\
+    color = ImageColor.getrgb("rgb(236, 75, 104)")
+    # color = (236, 75, 104, 255)
+    hex_color = "#EC4B68"
+    color_int = int(hex_color.lstrip('#'), 16)
     bg_img = "./bg.png"
 
     if len(text) > 10:
@@ -82,7 +86,8 @@ def generate():
     text_height = font_size * 1
     x_position = (bg_image_width - text_width) // 2
     y_position = (bg_image_height - text_height) // 2
-    draw.text((x_position, y_position), text, color, font=font)
+
+    draw.text((x_position, y_position), text, "blue", font=font)
 
     # image.save(output_file)
     # image.save(f"./static/{output_file}")
