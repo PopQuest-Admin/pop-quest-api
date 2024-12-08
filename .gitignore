@@ -1,4 +1,4 @@
-# .vercel
+.vercel
 *.log
 *.pyc
 __pycache__
