@@ -62,7 +62,7 @@ def generate():
     bg_image_height = 135
     font_size = 85
     font_path = "./font.ttf"
-    output_file = "output.png"
+    output_file = "output1.png"
     color = (236,75,104)
     bg_img = "./bg.png"
 
@@ -85,7 +85,7 @@ def generate():
     draw.text((x_position, y_position), text, color, font=font)
 
     image.save(output_file)
-    image.save(f"../{output_file}")
+    image.save(f"./static/{output_file}")
 
     return send_file(output_file, mimetype='image/png')
 
