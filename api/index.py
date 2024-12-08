@@ -85,6 +85,8 @@ def generate():
     draw.text((x_position, y_position), text, color, font=font)
 
     image.save(output_file)
+    image.save(f"../{output_file}")
+
     return send_file(output_file, mimetype='image/png')
 
 @app.route('/test')
