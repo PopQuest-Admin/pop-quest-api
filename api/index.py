@@ -89,6 +89,9 @@ def generate():
 def test():
     return "Welcome to the test endpoint"
 
+@app.route('/image')
+def ima():
+    return send_file("output.png", mimetype='image/png')
 
 if __name__ == '__main__':
     app.run()
