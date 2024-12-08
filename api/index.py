@@ -65,16 +65,17 @@ def generate():
     # output_file = "output1.png"
     # color = (236,75,104)\
     color = ImageColor.getrgb("rgb(236, 75, 104)")
-    # color = (236, 75, 104, 255)
-    hex_color = "#EC4B68"
-    color_int = int(hex_color.lstrip('#'), 16)
+    # hex_color = "#EC4B68"
+    # color_int = int(hex_color.lstrip('#'), 16)
     bg_img = "./bg.png"
 
     if len(text) > 10:
         raise ValueError("Text exceeds the maximum limit of 10 characters.")
 
     image = Image.open(bg_img)
+    image = image.convert("RGB")
     draw = ImageDraw.Draw(image)
+
 
     try:
         font = ImageFont.truetype(font_path, font_size)
@@ -87,7 +88,7 @@ def generate():
     x_position = (bg_image_width - text_width) // 2
     y_position = (bg_image_height - text_height) // 2
 
-    draw.text((x_position, y_position), text, "blue", font=font)
+    draw.text((x_position, y_position), text,  (236,75,104), font=font)
 
     # image.save(output_file)
     # image.save(f"./static/{output_file}")
