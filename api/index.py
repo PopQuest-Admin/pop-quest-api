@@ -1,9 +1,9 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 import requests
 from PIL import Image, ImageDraw, ImageFont
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 def check_google_sheet(link):
     try:
@@ -96,6 +96,10 @@ def test():
 @app.route('/image')
 def ima():
     return send_file("output.png", mimetype='image/png')
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static', filename)
 
 if __name__ == '__main__':
     app.run()
