@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, send_file, send_from_directory
 import requests
 from PIL import Image, ImageDraw, ImageFont
-
+import io
 
 app = Flask(__name__, static_folder='static')
 
@@ -84,14 +84,22 @@ def generate():
     y_position = (bg_image_height - text_height) // 2
     draw.text((x_position, y_position), text, color, font=font)
 
-    image.save(output_file)
-    image.save(f"./static/{output_file}")
+    # image.save(output_file)
+    # image.save(f"./static/{output_file}")
 
-    return send_file(output_file, mimetype='image/png')
+
+    # image_bytes = io.BytesIO()
+    # image_data = image_bytes.getvalue()
+    # return send_file(image_data,mimetype='image/png')
+    # return send_file(io.BytesIO(image),mimetype='image/jpeg')
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, format='PNG')
+    image_bytes.seek(0)  # Reset file pointer to the beginning
+    return send_file(image_bytes, mimetype='image/png')
 
 @app.route('/test')
 def test():
-    return "Welcome to the test endpoint"
+    return "Welcome to the /test endpoint !!!"
 
 @app.route('/image')
 def ima():
