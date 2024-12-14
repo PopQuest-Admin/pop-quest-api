@@ -1,9 +1,13 @@
-from flask import Flask, request, jsonify, send_file, send_from_directory
+from flask import Flask, request, jsonify, send_file, send_from_directory, session
 import requests
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import io
+import secrets
+
 
 app = Flask(__name__, static_folder='static')
+
+app.secret_key = secrets.token_hex(16)
 
 def check_google_sheet(link):
     try:
@@ -20,25 +24,16 @@ def check_google_sheet(link):
                 return False
     except:
         return "ERROR IN : check google sheet func"
-        
-
-def read_google_sheet(url, api_key):
-    try:
-        parts = str(url).split('/')
-        sheet_id = parts[5]
-        sheet_name = "Sheet1"
-        template_url = f"https://sheets.googleapis.com/v4/spreadsheets/{sheet_id}/values/{sheet_name}!A1:Z?alt=json&key={api_key}"
-        response  = requests.get(template_url)
-
-        data = response.json()
-        return data
-    
-    except:
-        return "Error occured"
 
 @app.route('/')
 def home():
     return 'Welcome to the popquest API'
+
+# @app.route('/session_start/<username>')
+# def session_begin(username):
+#     session['username'] = username
+#     session['session_id'] = app.secret_key
+#     return 'Logged in as : ' + username + "\nSession ID = " + app.secret_key
 
 @app.route('/checksheet', methods=['GET'])
 def validate():
@@ -47,6 +42,50 @@ def validate():
         "validity" : check_google_sheet(link)
     }
     return jsonify(data)
+
+def read_google_sheet(url, api_key):
+    try:
+        parts = str(url).split('/')
+        sheet_id = parts[5]
+        sheet_name = "Sheet1"
+        template_url = f"https://sheets.googleapis.com/v4/spreadsheets/{sheet_id}/values/{sheet_name}!A1:Z?alt=json&key={api_key}"
+        response  = requests.get(template_url)
+        data = response.json()
+
+        source = data["values"]
+        source.pop(0)
+        
+        ret_data = {
+            "count" : len(source),
+            "data" : [
+                {0 : { "question": "placeholder", "choice1" : "placeholder", "choice2" : "placeholder", "choice3" : "placeholder", "choice4" : "placeholder", "answer" : "placeholder"}},
+                ]
+            
+        }
+
+        counter = 1
+        for item in source:
+            some_var = {
+                counter : {
+                    "question": item[0],
+                    "choice1" : item[1],
+                    "choice2" : item[2],
+                    "choice3" : item[3],
+                    "choice4" : item[4],
+                    "answer" : item[1]
+                }
+            }
+            ret_data["data"].append(some_var)
+            counter += 1
+
+
+        print(ret_data)
+        ret_data["data"].pop(0)
+
+        return ret_data
+    
+    except:
+        return "Error occurred"
 
 @app.route('/readsheet', methods=['GET'])
 def readdata():
@@ -62,11 +101,7 @@ def generate():
     bg_image_height = 135
     font_size = 85
     font_path = "./font.ttf"
-    # output_file = "output1.png"
-    # color = (236,75,104)\
     color = ImageColor.getrgb("rgb(236, 75, 104)")
-    # hex_color = "#EC4B68"
-    # color_int = int(hex_color.lstrip('#'), 16)
     bg_img = "./bg.png"
 
     if len(text) > 10:
@@ -82,34 +117,21 @@ def generate():
     except IOError:
         print("ERROR FONT FILE FOUND")
 
-    # text_width, text_height = draw.textlength(text, font=font)
     text_width = draw.textlength(text, font=font)
     text_height = font_size * 1
     x_position = (bg_image_width - text_width) // 2
     y_position = (bg_image_height - text_height) // 2
-
     draw.text((x_position, y_position), text,  (236,75,104), font=font)
-
-    # image.save(output_file)
-    # image.save(f"./static/{output_file}")
-
-
-    # image_bytes = io.BytesIO()
-    # image_data = image_bytes.getvalue()
-    # return send_file(image_data,mimetype='image/png')
-    # return send_file(io.BytesIO(image),mimetype='image/jpeg')
     image_bytes = io.BytesIO()
     image.save(image_bytes, format='PNG')
-    image_bytes.seek(0)  # Reset file pointer to the beginning
+    image_bytes.seek(0)
+    
     return send_file(image_bytes, mimetype='image/png')
 
 @app.route('/test')
 def test():
     return "Welcome to the /test endpoint !!!"
 
-@app.route('/image')
-def ima():
-    return send_file("output.png", mimetype='image/png')
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
