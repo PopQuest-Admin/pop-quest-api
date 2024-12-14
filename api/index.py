@@ -1,13 +1,10 @@
-from flask import Flask, request, jsonify, send_file, send_from_directory, session
+from flask import Flask, request, jsonify, send_file, send_from_directory
 import requests
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import io
-import secrets
-
+import json
 
 app = Flask(__name__, static_folder='static')
-
-app.secret_key = secrets.token_hex(16)
 
 def check_google_sheet(link):
     try:
@@ -29,12 +26,6 @@ def check_google_sheet(link):
 def home():
     return 'Welcome to the popquest API'
 
-# @app.route('/session_start/<username>')
-# def session_begin(username):
-#     session['username'] = username
-#     session['session_id'] = app.secret_key
-#     return 'Logged in as : ' + username + "\nSession ID = " + app.secret_key
-
 @app.route('/checksheet', methods=['GET'])
 def validate():
     link = request.args.get('link')
@@ -45,44 +36,34 @@ def validate():
 
 def read_google_sheet(url, api_key):
     try:
-        parts = str(url).split('/')
+        parts = str(url).split("/")
         sheet_id = parts[5]
         sheet_name = "Sheet1"
         template_url = f"https://sheets.googleapis.com/v4/spreadsheets/{sheet_id}/values/{sheet_name}!A1:Z?alt=json&key={api_key}"
-        response  = requests.get(template_url)
+        response = requests.get(template_url)
         data = response.json()
 
         source = data["values"]
         source.pop(0)
-        
-        ret_data = {
-            "count" : len(source),
-            "data" : [
-                {0 : { "question": "placeholder", "choice1" : "placeholder", "choice2" : "placeholder", "choice3" : "placeholder", "choice4" : "placeholder", "answer" : "placeholder"}},
-                ]
-            
-        }
+
+        return_data = {}
+        return_data["count"] = len(source)
 
         counter = 1
         for item in source:
-            some_var = {
-                counter : {
-                    "question": item[0],
-                    "choice1" : item[1],
-                    "choice2" : item[2],
-                    "choice3" : item[3],
-                    "choice4" : item[4],
-                    "answer" : item[1]
-                }
+            key = f"{str(counter)}"
+            value = {
+                "question": item[0],
+                "choice1": item[1],
+                "choice2": item[2],
+                "choice3": item[3],
+                "choice4": item[4],
+                "answer": item[1],
             }
-            ret_data["data"].append(some_var)
+            return_data[key] = value
             counter += 1
-
-
-        print(ret_data)
-        ret_data["data"].pop(0)
-
-        return ret_data
+        json_data = json.dumps(return_data, indent=4)
+        return json_data
     
     except:
         return "Error occurred"
