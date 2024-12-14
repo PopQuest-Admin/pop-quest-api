@@ -62,8 +62,8 @@ def read_google_sheet(url, api_key):
             }
             return_data[key] = value
             counter += 1
-        json_data = json.dumps(return_data)
-        return json_data
+        #json_data = json.dumps(return_data)
+        return return_data
     
     except:
         return "Error occurred"
