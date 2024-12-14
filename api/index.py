@@ -62,7 +62,7 @@ def read_google_sheet(url, api_key):
             }
             return_data[key] = value
             counter += 1
-        json_data = json.dumps(return_data, indent=4)
+        json_data = json.dumps(return_data)
         return json_data
     
     except:
